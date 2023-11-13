@@ -24,12 +24,17 @@
     - ubuntu_server
   tasks:
   - name: Run Dockerfile
-    command: sudo docker build -t apache-test:1.3 .
+    become: yes
+    become_user: jhoana
+    command: "docker build -t apache-test:1.3 ."
+      
 
 - hosts: centos_server
   become: true
   roles:
     - centos_server
-  tasks: 
+  tasks:
   - name: Run Dockerfile
-    command: sudo docker build -t apache-test:1.4 .
+    become: yes
+    become_user: jhoana                                                      
+    command: "docker build -t apache-test:1.4 ."
