@@ -1,22 +1,20 @@
----
 - hosts: all
   become: true
   pre_tasks:
-
-  - name: update repository index (CentOS)
-    tags: always
-    yum:
-      name: '*'
-      state: latest
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "CentOS"
-  - name: install updates (Ubuntu)
-    tags: always
-    apt:
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "Ubuntu"
+    - name: update repository index (CentOS)
+      tags: always
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution == "CentOS"
+    - name: install updates (Ubuntu)
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution == "Ubuntu"
 
 - hosts: ubuntu_server
   become: true
@@ -84,34 +82,19 @@
     default_container_command: sleep 1d
 
   tasks:
-    - name: Install aptitude
-      yum:
-        name: aptitude
-        state: latest
-        update_cache: true
-
-    - name: Install required system packages
-      yum:
-        pkg:
-          - yum-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
-        state: latest
-        update_cache: true
-
-    - name: Add Docker GPG apt Key
-      yum_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+    - name: Add Docker GPG apt Key (for CentOS)
+      apt_key:
+        url: https://download.docker.com/linux/centos/gpg
         state: present
 
-    - name: Add Docker Repository
+    - name: Add Docker Repository (for CentOS)
       yum_repository:
-        repo: deb https://download.docker.com/linux/ubuntu focal stable
-        state: present
+        name: docker-ce
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
 
     - name: Update apt and install docker-ce
       yum:
